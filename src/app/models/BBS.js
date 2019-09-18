@@ -31,7 +31,7 @@ class BBS extends Model{
             CurrentStage: Sequelize.STRING,
             TaskObserved: Sequelize.STRING,
             Behavior: Sequelize.STRING,
-            Question: Sequelize.STRING,
+            QuestionMobileApp: Sequelize.STRING,
             SafeUnsafe: Sequelize.STRING,
             CauseOfUnsafe: Sequelize.STRING,
         },

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
-import BCMController from './app/controllers/bcmController';
+import BBSController from './app/controllers/BBSController';
 
 const routes = new Router();
 
-routes.get('/bbs', BCMController.index);
+routes.get('/bbs/:initialPage/:finalPage', BBSController.index);
 
 export default routes;

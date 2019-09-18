@@ -8,6 +8,9 @@ class BcmController {
    */
 
   async index(req, res) {
+    // Inform that route has been accessed
+    console.log('BBS Route accesssed');
+
     // Variable for loop
     let i = null;
 
@@ -40,13 +43,17 @@ class BcmController {
     // Get BBS pages based into 500 records limit by page
     const pages = Math.round(BBSQuantity / 500);
 
+    // Variable to append all the pages into a single array
+    let allBBS = [];
+
     // append data into a array to return to Power BI
-    for (i = 1; i < 2; i++) {
-      console.log(i);
+    for (i = 1; i <= pages; i++) {
+      allBBS.push(logicsData.data.value);
+      console.log(`Page ${i} has been extracted`);
     }
 
     // return data for user
-    return res.status(200).json(pages);
+    return res.status(200).json(allBBS);
   }
 }
 

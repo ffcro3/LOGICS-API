@@ -4,6 +4,6 @@ import BBSController from './app/controllers/BBSController';
 
 const routes = new Router();
 
-routes.get('/bbs/:initialPage/:finalPage', BBSController.index);
+routes.get('/injury/:initialPage/:finalPage/', BBSController.index);
 
 export default routes;

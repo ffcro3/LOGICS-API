@@ -1,8 +1,9 @@
+import 'dotenv/config';
 import { create } from 'apisauce';
 
 import auth from '../../config/authLOGICS';
 
-class BcmController {
+class InjuryController {
   /**
    * THIS ROUTE LIST ALL DATA INTO BBS RECORDS INTO LOGICS
    */
@@ -28,25 +29,22 @@ class BcmController {
       Authorization: `Basic ${Buffer.from(
         `${auth.username}:${auth.password}`
       ).toString('base64')}`,
+      timeout: 10000000,
     });
 
     // Variable to append all the pages into a single array
     const allBBS = [];
 
-    console.log(`You have ${pages} pages to extract`);
-
-    console.log(`Beggining extraction...`);
+    console.log(process.env.INJURY_DATA);
 
     // append data into a array to return to Power BI
     for (i = initialPage; i <= finalPage; i++) {
       const paginationData = await api
-        .get(
-          `object/SafetIncidentv6_SSafetyIncidentObject?$select=DateOccurenceH,TimofOccurrence,ShiftStartTime,ShiftEndTime,HrsAtTimeofAcc,DateCreated,IncidenRecordNo,InjurePartyName,WhatObjHarmed,DateOfBirth,DayAwayFromWork,DaysJobTransfer,InjuWorkRelated,Deleted&$expand=CreatedBy($select=Name),Location($select=Name),hciMasterIncide($select=IncidentNo),CategoryID($select=Caption),Function($select=Caption),DHLInjPartyType($select=Caption),CausationType($select=Caption),SubIncidentType($select=Caption),DHLBodyPart($select=Caption),Workflow($select=DueDateType,WorkflowStatus)&$skip=${i *
-            500}`
-        )
+        .get(process.env.INJURY_DATA + i * 500)
         .then(response => response);
 
       allBBS.push(paginationData.data.value);
+
       console.log(`Page ${i} has been extracted`);
     }
 
@@ -56,6 +54,12 @@ class BcmController {
     // return data for user
     return res.status(200).json(allBBS);
   }
+
+  async getEnv(req, res) {
+    return res.status(200).json({
+      Data: process.env.INJURY_DATA,
+    });
+  }
 }
 
-export default new BcmController();
+export default new InjuryController();

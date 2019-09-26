@@ -12,7 +12,7 @@
 
 ---
 
-> **GoStack 8.0**: Aplicação desenvolvida para extração de dados do sistema LOGICS e utilização dos mesmos no MS Power BI.
+> **LOGICS - API (INTELEX) **: Aplicação desenvolvida para extração de dados do sistema LOGICS e utilização dos mesmos no MS Power BI.
 
 ---
 

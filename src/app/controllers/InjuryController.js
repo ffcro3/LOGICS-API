@@ -1,5 +1,9 @@
 import 'dotenv/config';
+import fileDownload from 'js-file-download';
 import { create } from 'apisauce';
+import api from '../../config/api'
+import fs from 'fs';
+
 
 import auth from '../../config/authLOGICS';
 
@@ -13,53 +17,38 @@ class InjuryController {
     console.log('Injury Route accesssed');
 
     // Page params for requests
-    const { finalPage } = req.params;
-    const { initialPage } = req.params;
+    const { page } = req.params;
 
     // Variable for loop
     let i = null;
 
-    // defining API URL
-    const api = create({
-      baseURL: 'https://global.intelex.com/Login3/LOGICS/api/v2',
-    });
-
-    // Authorization Headers
-    api.setHeaders({
-      Authorization: `Basic ${Buffer.from(
-        `${auth.username}:${auth.password}`
-      ).toString('base64')}`,
-      timeout: 10000000,
-    });
-
     // Variable to append all the pages into a single array
-    const allBBS = [];
+    const allInjuries = [];
 
-    console.log(process.env.INJURY_DATA);
-
-    // append data into a array to return to Power BI
-    for (i = initialPage; i <= finalPage; i++) {
+    console.log(process.env.INJURY_DATA + (Number(page) * 500));
+      
       const paginationData = await api
-        .get(process.env.INJURY_DATA + i * 500)
-        .then(response => response);
+      .get(process.env.INJURY_DATA + (Number(page) * 500) )
+      .then(response => response);
 
-      allBBS.push(paginationData.data.value);
+      await fs.writeFile(`injury-${Number(page)}.json`, JSON.stringify(paginationData.data.value, null), (err) => {
+        if (err) return res.status(500).json({
+          error: 'file not saved'
+        })
+      })
 
-      console.log(`Page ${i} has been extracted`);
-    }
+      await res.download(`injury-${Number(page)}.json`, `injury-${page}.json`, (err) => {
+        if (err) return res.status(500).json({
+          error: 'file not dwonloaded'
+        })
+      });
 
-    console.log(
-      `Request has been finished... Go to Power BI and Refresh the data.`
-    );
-    // return data for user
-    return res.status(200).json(allBBS);
+      
+      res.json({
+        data: true
+      });
   }
 
-  async getEnv(req, res) {
-    return res.status(200).json({
-      Data: process.env.INJURY_DATA,
-    });
-  }
 }
 
 export default new InjuryController();

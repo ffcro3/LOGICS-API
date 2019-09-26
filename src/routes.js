@@ -4,7 +4,6 @@ import InjuryController from './app/controllers/InjuryController';
 
 const routes = new Router();
 
-routes.get('/injury/:initialPage/:finalPage/', InjuryController.index);
-routes.get('/injury/env', InjuryController.getEnv);
+routes.get('/injury/:page/', InjuryController.index);
 
 export default routes;

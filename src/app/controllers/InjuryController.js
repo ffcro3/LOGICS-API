@@ -1,11 +1,10 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-plusplus */
 import 'dotenv/config';
-import fileDownload from 'js-file-download';
-import { create } from 'apisauce';
-import api from '../../config/api'
+import { resolve } from 'path';
 import fs from 'fs';
-
-
-import auth from '../../config/authLOGICS';
+import api from '../../config/api';
 
 class InjuryController {
   /**
@@ -13,42 +12,49 @@ class InjuryController {
    */
 
   async index(req, res) {
-    // Inform that route has been accessed
-    console.log('Injury Route accesssed');
-
-    // Page params for requests
-    const { page } = req.params;
-
-    // Variable for loop
-    let i = null;
-
-    // Variable to append all the pages into a single array
-    const allInjuries = [];
-
-    console.log(process.env.INJURY_DATA + (Number(page) * 500));
-      
-      const paginationData = await api
-      .get(process.env.INJURY_DATA + (Number(page) * 500) )
+    const logicsData = await api
+      .get(process.env.INJURY_COUNT)
       .then(response => response);
 
-      await fs.writeFile(`injury-${Number(page)}.json`, JSON.stringify(paginationData.data.value, null), (err) => {
-        if (err) return res.status(500).json({
-          error: 'file not saved'
-        })
-      })
+    const BBSQuantity = logicsData.data['@odata.count'];
 
-      await res.download(`injury-${Number(page)}.json`, `injury-${page}.json`, (err) => {
-        if (err) return res.status(500).json({
-          error: 'file not dwonloaded'
-        })
+    // Get BBS pages based into 500 records limit by page
+    const pages = Math.round(BBSQuantity / 500);
+
+    console.log(`You have ${pages} to extract...`);
+    console.log(`Beggining...`);
+
+    for (let index = 0; index <= 0; index++) {
+      const paginationData = await api
+        .get(process.env.INJURY_DATA + Number(index) * 500)
+        .then(response => response);
+
+      const writeStream = fs.createWriteStream(
+        `${resolve(__dirname, '..', '..', '..', 'tmp')}/injury-${index}.txt`
+      );
+      // write some data with a base64 encoding
+      writeStream.write(JSON.stringify(paginationData.data.value, null));
+
+      // the finish event is emitted when all data has been flushed from the stream
+      writeStream.on('finish', () => {
+        console.log(`page ${index} was wrote`);
       });
 
-      
-      res.json({
-        data: true
-      });
+      // close the stream
+      writeStream.end();
+    }
+
+    return res.send('Finished');
   }
 
+  async download(req, res) {
+    // eslint-disable-next-line prefer-destructuring
+    const start = req.params.start;
+
+    res.download(
+      `${resolve(__dirname, '..', '..', '..', 'tmp')}/injury-${start}.json`
+    );
+  }
 }
 
 export default new InjuryController();

@@ -8,9 +8,9 @@ import fs from 'fs';
 
 import api from '../../config/api';
 
-class InjuryController {
+class MasterIncidentController {
   /**
-   * THIS ROUTE RECORDS ALL INJURIES FROM LOGICS
+   * THIS ROUTE RECORDS ALL MASTER INCIDENT FROM LOGICS
    */
   async index(req, res) {
     const { year } = req.params;
@@ -18,25 +18,25 @@ class InjuryController {
     let logicsCountAll = '';
     let writeStream = '';
 
-    console.log('Injury Route accessed');
+    console.log('Master Route accessed');
 
     if (year) {
       const fullYear = `${year}-01-01T00:00:00Z`;
 
-      logicsAllURL = `${process.env.INJURY_DATA}&$filter=DateaTimeOccur ge ${fullYear} and Deleted eq false`;
-      logicsCountAll = `${process.env.INJURY_COUNT}&$filter=DateaTimeOccur ge ${fullYear} and Deleted eq false`;
+      logicsAllURL = `${process.env.MASTER_DATA}&$filter=DateaTimeOccur ge ${fullYear} and Deleted eq false`;
+      logicsCountAll = `${process.env.MASTER_COUNT}&$filter=DateaTimeOccur ge ${fullYear} and Deleted eq false`;
     }
     if (!year) {
-      logicsCountAll = `${process.env.INJURY_DATA}&$filter=Deleted eq false`;
-      logicsAllURL = `${process.env.INJURY_COUNT}&$filter=Deleted eq false`;
+      logicsCountAll = `${process.env.MASTER_COUNT}&$filter=Deleted eq false`;
+      logicsAllURL = `${process.env.MASTER_DATA}&$filter=Deleted eq false`;
     }
 
     const logicsData = await api.get(logicsCountAll).then(response => response);
 
-    const InjuryQuantity = logicsData.data['@odata.count'];
+    const MasterQuantity = logicsData.data['@odata.count'];
 
     // Get BBS pages based into 500 records limit by page
-    const pages = Math.round(InjuryQuantity / 500);
+    const pages = Math.round(MasterQuantity / 500);
 
     console.log(`You have ${pages} to extract...`);
     console.log(`Beggining...`);
@@ -57,9 +57,9 @@ class InjuryController {
               '..',
               '..',
               'tmp',
-              'Injuries',
+              'MasterIncident',
               year
-            )}/injury-${index}.txt`
+            )}/master-${index}.txt`
           );
         }
         if (!year) {
@@ -71,9 +71,9 @@ class InjuryController {
               '..',
               '..',
               'tmp',
-              'Injuries',
+              'MasterIncident',
               'All'
-            )}/injury-${index}.txt`
+            )}/master-${index}.txt`
           );
         }
         // write master incident data
@@ -95,4 +95,4 @@ class InjuryController {
   }
 }
 
-export default new InjuryController();
+export default new MasterIncidentController();

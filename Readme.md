@@ -1,10 +1,13 @@
- <p  align="center">
-
-<a  href="https://nodejs.org/en/"  target="_blank">
+<p  align="center">
 <p align="center">
-  <img width="auto" height="200" src="https://i.imgur.com/6syIF0C.png">
+  <a  href="https://nodejs.org/en/"  target="_blank">
+  <img width="auto" height="150" src="https://i.imgur.com/6syIF0C.png"></a>
+  <a href="https://www.intelex.com/" target="_blank">
+  <img width="auto" height="180" src="https://i.imgur.com/G13qpCl.png">
 </p>
 </a>
+
+</p>
 
 </p>
 

@@ -7,6 +7,6 @@ export default {
     pass: process.env.MAIL_PASS,
   },
   default: {
-    from: 'HSE DHL POWER BI API Team <noreply@ffcro3.com>',
+    from: 'HSE DHL POWER BI API Team <fabriciofrocha87@gmail.com>',
   },
 };

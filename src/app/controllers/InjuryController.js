@@ -60,7 +60,7 @@ class InjuryController {
     console.log(`Beggining...`);
 
     // For loop to record every single page listed
-    for (let index = 0; index <= 0; index++) {
+    for (let index = 0; index <= pages; index++) {
       try {
         const paginationData = await api
           .get(`${logicsAllURL}&$skip=${Number(index) * 500}`)

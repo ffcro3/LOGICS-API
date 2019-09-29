@@ -4,9 +4,13 @@
 /* eslint-disable no-plusplus */
 import 'dotenv/config';
 import { resolve } from 'path';
+import { format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import fs from 'fs';
 
 import api from '../../config/api';
+import Queue from '../../lib/Queue';
+import FinishMail from '../jobs/FinishMail';
 
 class MasterIncidentController {
   /**
@@ -37,6 +41,20 @@ class MasterIncidentController {
 
     // Get BBS pages based into 500 records limit by page
     const pages = Math.round(MasterQuantity / 500);
+
+    const formattedDate = format(new Date(), "dd 'de' MMMM', às ' H:mm'h'", {
+      locale: pt,
+    });
+
+    const emailData = {
+      date: formattedDate,
+      data: 'Master Incidents',
+      value: MasterQuantity,
+      pagesExported: pages,
+      url: logicsAllURL,
+      provider: 'System Admin',
+      email: 'fabriciofrocha87@gmail.com',
+    };
 
     console.log(`You have ${pages} to extract...`);
     console.log(`Beggining...`);
@@ -90,6 +108,10 @@ class MasterIncidentController {
         console.log(err);
       }
     }
+
+    await Queue.add(FinishMail.key, {
+      emailData,
+    });
 
     return res.send('Finished');
   }

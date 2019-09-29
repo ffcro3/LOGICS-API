@@ -4,9 +4,13 @@
 /* eslint-disable no-plusplus */
 import 'dotenv/config';
 import { resolve } from 'path';
+import { format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import fs from 'fs';
 
 import api from '../../config/api';
+import Queue from '../../lib/Queue';
+import FinishMail from '../jobs/FinishMail';
 
 class InjuryController {
   /**
@@ -23,12 +27,12 @@ class InjuryController {
     if (year) {
       const fullYear = `${year}-01-01T00:00:00Z`;
 
-      logicsAllURL = `${process.env.INJURY_DATA}&$filter=DateaTimeOccur ge ${fullYear} and Deleted eq false`;
-      logicsCountAll = `${process.env.INJURY_COUNT}&$filter=DateaTimeOccur ge ${fullYear} and Deleted eq false`;
+      logicsAllURL = `${process.env.INJURY_DATA}&$filter=DateOccurenceH ge ${fullYear} and Deleted eq false`;
+      logicsCountAll = `${process.env.INJURY_COUNT}&$filter=DateOccurenceH ge ${fullYear} and Deleted eq false`;
     }
     if (!year) {
-      logicsCountAll = `${process.env.INJURY_DATA}&$filter=Deleted eq false`;
-      logicsAllURL = `${process.env.INJURY_COUNT}&$filter=Deleted eq false`;
+      logicsCountAll = `${process.env.INJURY_COUNT}&$filter=Deleted eq false`;
+      logicsAllURL = `${process.env.INJURY_DATA}&$filter=Deleted eq false`;
     }
 
     const logicsData = await api.get(logicsCountAll).then(response => response);
@@ -38,11 +42,25 @@ class InjuryController {
     // Get BBS pages based into 500 records limit by page
     const pages = Math.round(InjuryQuantity / 500);
 
+    const formattedDate = format(new Date(), "dd 'de' MMMM', às ' H:mm'h'", {
+      locale: pt,
+    });
+
+    const emailData = {
+      date: formattedDate,
+      data: 'Injury Incidents',
+      value: InjuryQuantity,
+      pagesExported: pages,
+      url: logicsAllURL,
+      provider: 'System Admin',
+      email: 'fabriciofrocha87@gmail.com',
+    };
+
     console.log(`You have ${pages} to extract...`);
     console.log(`Beggining...`);
 
     // For loop to record every single page listed
-    for (let index = 0; index <= pages; index++) {
+    for (let index = 0; index <= 0; index++) {
       try {
         const paginationData = await api
           .get(`${logicsAllURL}&$skip=${Number(index) * 500}`)
@@ -90,6 +108,10 @@ class InjuryController {
         console.log(err);
       }
     }
+
+    await Queue.add(FinishMail.key, {
+      emailData,
+    });
 
     return res.send('Finished');
   }

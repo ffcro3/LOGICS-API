@@ -22,7 +22,7 @@ class InjuryController {
     let logicsCountAll = '';
     let writeStream = '';
 
-    console.log('Injury Route accessed');
+    console.log('Injury Route accessed for export');
 
     if (year) {
       const fullYear = `${year}-01-01T00:00:00Z`;

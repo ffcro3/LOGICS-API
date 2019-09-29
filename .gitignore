@@ -5,6 +5,7 @@ dist
 
 *.json
 *.txt
+*.zip
 
 !tmp/Employee/All
 !tmp/Employee/2015

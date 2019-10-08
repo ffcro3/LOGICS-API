@@ -5,6 +5,7 @@
 import 'dotenv/config';
 import { resolve } from 'path';
 import { format } from 'date-fns';
+import TelegramBot from 'node-telegram-bot-api';
 import pt from 'date-fns/locale/pt';
 import fs from 'fs';
 
@@ -21,6 +22,7 @@ class InjuryController {
     let logicsAllURL = '';
     let logicsCountAll = '';
     let writeStream = '';
+    const token = '846374713:AAGHS_4k7bRS_u3YYnTe0IVHU6P4RtFPSms';
 
     console.log('Injury Route accessed');
 

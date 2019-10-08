@@ -1,8 +1,9 @@
 import Bee from 'bee-queue';
 import FinishMail from '../app/jobs/FinishMail';
+import TelegramMessage from '../app/jobs/TelegramMessage';
 import redisConfig from '../config/redis';
 
-const jobs = [FinishMail];
+const jobs = [FinishMail, TelegramMessage];
 
 class Queue {
   constructor() {

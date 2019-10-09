@@ -1,5 +1,5 @@
 import axios from 'axios';
-import auth from './authLOGICS.js';
+import auth from '../../config/authLOGICS';
 
 const api = axios.create({
   baseURL: 'https://global.intelex.com/Login3/LOGICS/api/v2',

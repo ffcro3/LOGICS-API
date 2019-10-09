@@ -5,11 +5,10 @@
 import 'dotenv/config';
 import { resolve } from 'path';
 import { format } from 'date-fns';
-import TelegramBot from 'node-telegram-bot-api';
 import pt from 'date-fns/locale/pt';
 import fs from 'fs';
 
-import api from '../../config/api';
+import api from '../services/api';
 import Queue from '../../lib/Queue';
 import FinishMail from '../jobs/FinishMail';
 
@@ -22,7 +21,8 @@ class InjuryController {
     let logicsAllURL = '';
     let logicsCountAll = '';
     let writeStream = '';
-    const token = '846374713:AAGHS_4k7bRS_u3YYnTe0IVHU6P4RtFPSms';
+    const TOKEN = process.env.TELEGRAM_TOKEN;
+    const bot = new TelegramBot(TOKEN, { polling: true });
 
     console.log('Injury Route accessed');
 
@@ -40,6 +40,10 @@ class InjuryController {
     const logicsData = await api.get(logicsCountAll).then(response => response);
 
     const InjuryQuantity = logicsData.data['@odata.count'];
+    await bot.sendMessage(
+      '717772192',
+      `The process started the Power BI refresh. There are ${InjuryQuantity} Injuries`
+    );
 
     // Get BBS pages based into 500 records limit by page
     const pages = Math.round(InjuryQuantity / 500);
@@ -58,8 +62,8 @@ class InjuryController {
       email: 'fabriciofrocha87@gmail.com',
     };
 
-    console.log(`You have ${pages} to extract...`);
-    console.log(`Beggining...`);
+    await bot.sendMessage('717772192', `You have ${pages} to extract`);
+    await bot.sendMessage('717772192', `Beggining...`);
 
     // For loop to record every single page listed
     for (let index = 0; index <= pages; index++) {
@@ -101,7 +105,7 @@ class InjuryController {
 
         // the finish event is emitted when all data has been flushed from the stream
         writeStream.on('finish', () => {
-          console.log(`page ${index} was wrote`);
+          bot.sendMessage('717772192', `Page ${index} was wrote`);
         });
 
         // close the stream

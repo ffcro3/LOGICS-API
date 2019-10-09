@@ -7,10 +7,9 @@ import { resolve } from 'path';
 import { format } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import fs from 'fs';
+import Telegraf from 'telegraf';
 
 import api from '../services/api';
-import Queue from '../../lib/Queue';
-import FinishMail from '../jobs/FinishMail';
 
 class InjuryController {
   /**
@@ -21,10 +20,12 @@ class InjuryController {
     let logicsAllURL = '';
     let logicsCountAll = '';
     let writeStream = '';
-    const TOKEN = process.env.TELEGRAM_TOKEN;
-    const bot = new TelegramBot(TOKEN, { polling: true });
+    const bot = new Telegraf(process.env.POWERBI_TOKEN);
 
-    console.log('Injury Route accessed');
+    bot.telegram.sendMessage(
+      process.env.TELEGRAM_CHAT,
+      'Injury route accessed'
+    );
 
     if (year) {
       const fullYear = `${year}-01-01T00:00:00Z`;
@@ -40,10 +41,6 @@ class InjuryController {
     const logicsData = await api.get(logicsCountAll).then(response => response);
 
     const InjuryQuantity = logicsData.data['@odata.count'];
-    await bot.sendMessage(
-      '717772192',
-      `The process started the Power BI refresh. There are ${InjuryQuantity} Injuries`
-    );
 
     // Get BBS pages based into 500 records limit by page
     const pages = Math.round(InjuryQuantity / 500);
@@ -52,18 +49,12 @@ class InjuryController {
       locale: pt,
     });
 
-    const emailData = {
-      date: formattedDate,
-      data: 'Injury Incidents',
-      value: InjuryQuantity,
-      pagesExported: pages,
-      url: logicsAllURL,
-      provider: 'System Admin',
-      email: 'fabriciofrocha87@gmail.com',
-    };
+    bot.telegram.sendMessage(
+      process.env.TELEGRAM_CHAT,
+      `You have ${pages} to extract`
+    );
 
-    await bot.sendMessage('717772192', `You have ${pages} to extract`);
-    await bot.sendMessage('717772192', `Beggining...`);
+    bot.telegram.sendMessage(process.env.TELEGRAM_CHAT, `Beggining...`);
 
     // For loop to record every single page listed
     for (let index = 0; index <= pages; index++) {
@@ -105,7 +96,10 @@ class InjuryController {
 
         // the finish event is emitted when all data has been flushed from the stream
         writeStream.on('finish', () => {
-          bot.sendMessage('717772192', `Page ${index} was wrote`);
+          bot.telegram.sendMessage(
+            process.env.TELEGRAM_CHAT,
+            `Page ${index} was wrote`
+          );
         });
 
         // close the stream
@@ -115,9 +109,10 @@ class InjuryController {
       }
     }
 
-    await Queue.add(FinishMail.key, {
-      emailData,
-    });
+    bot.telegram.sendMessage(
+      process.env.TELEGRAM_CHAT,
+      `Injury routine has FINISHED at ${formattedDate}`
+    );
 
     return res.send('Finished');
   }

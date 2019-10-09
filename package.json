@@ -21,6 +21,7 @@
     "pg-hstore": "^2.3.3",
     "redis": "^2.8.0",
     "sequelize": "^5.16.0",
+    "telegraf": "^3.32.0",
     "youch": "^2.0.10",
     "yup": "^0.27.0"
   },
@@ -28,7 +29,9 @@
     "dev": "nodemon src/server.js",
     "queue": "nodemon src/queue.js",
     "build": "sucrase ./src -d ./dist --transforms imports",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "telegram": "nodemon src/app/jobs/TelegramMessage.js",
+    "telegrambot": "nodemon src/app/controllers/TelegramController.js"
   },
   "devDependencies": {
     "eslint": "^6.2.1",

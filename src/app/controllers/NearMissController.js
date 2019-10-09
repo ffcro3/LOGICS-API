@@ -7,10 +7,9 @@ import { resolve } from 'path';
 import { format } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import fs from 'fs';
+import Telegraf from 'telegraf';
 
-import api from '../../config/api';
-import Queue from '../../lib/Queue';
-import FinishMail from '../jobs/FinishMail';
+import api from '../services/api';
 
 class NearMissController {
   /**
@@ -21,8 +20,12 @@ class NearMissController {
     let logicsAllURL = '';
     let logicsCountAll = '';
     let writeStream = '';
+    const bot = new Telegraf(process.env.POWERBI_TOKEN);
 
-    console.log('Near Miss Route accessed');
+    bot.telegram.sendMessage(
+      process.env.TELEGRAM_CHAT,
+      'Near Miss route accessed'
+    );
 
     if (year) {
       const fullYear = `${year}-01-01T00:00:00Z`;
@@ -46,18 +49,12 @@ class NearMissController {
       locale: pt,
     });
 
-    const emailData = {
-      date: formattedDate,
-      data: 'Near Miss Incidents',
-      value: NearMissQuantity,
-      pagesExported: pages,
-      url: logicsAllURL,
-      provider: 'System Admin',
-      email: 'fabriciofrocha87@gmail.com',
-    };
+    bot.telegram.sendMessage(
+      process.env.TELEGRAM_CHAT,
+      `You have ${pages} to extract`
+    );
 
-    console.log(`You have ${pages} to extract...`);
-    console.log(`Beggining...`);
+    bot.telegram.sendMessage(process.env.TELEGRAM_CHAT, `Beggining...`);
 
     // For loop to record every single page listed
     for (let index = 0; index <= pages; index++) {
@@ -99,7 +96,10 @@ class NearMissController {
 
         // the finish event is emitted when all data has been flushed from the stream
         writeStream.on('finish', () => {
-          console.log(`page ${index} was wrote`);
+          bot.telegram.sendMessage(
+            process.env.TELEGRAM_CHAT,
+            `Page ${index} was wrote`
+          );
         });
 
         // close the stream
@@ -109,9 +109,10 @@ class NearMissController {
       }
     }
 
-    await Queue.add(FinishMail.key, {
-      emailData,
-    });
+    bot.telegram.sendMessage(
+      process.env.TELEGRAM_CHAT,
+      `Injury routine has FINISHED at ${formattedDate}`
+    );
 
     return res.send('Finished');
   }
